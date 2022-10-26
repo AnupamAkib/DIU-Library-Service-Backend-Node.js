@@ -129,7 +129,7 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
 
         app.get("/student/viewBookList", function(req, res){
             const student_id = req.body.studentID;
-
+            
             var collection = myMongoClient.db("DIU_Library_Service").collection("students");
             collection.find({studentID: student_id}).toArray(function (err, data) {
                 if (err) {
@@ -144,7 +144,7 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
                         const savedBooks = data[0].savedBooks;
                         //res.send(savedBooks);
                         var collection1 = myMongoClient.db("DIU_Library_Service").collection("books");
-                        collection1.find().toArray(function (err, data) {
+                        collection1.find().toArray(function (err, bdata) {
                             if (err) {
                                 console.log("Error selecting data");
                                 res.send({ status: "failed" });
@@ -152,9 +152,11 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
                             else {
                                 let ret = [];
                                 for(let i=0; i<savedBooks.length; i++){
-                                    for(let j=0; j<data.length; j++){
-                                        if(data[j]._id == savedBooks[i]){
-                                            ret.push(data[j]);
+                                    for(let j=0; j<bdata.length; j++){
+                                        let tmp = bdata[j]._id;
+                                        tmp = tmp.toString();
+                                        if(tmp == savedBooks[i]){
+                                            ret.push(bdata[j]);
                                         }
                                     }
                                 }
