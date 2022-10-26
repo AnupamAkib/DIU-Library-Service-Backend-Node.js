@@ -127,7 +127,7 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
 
         //------------ CRUD on Booklist -------------
 
-        app.get("/student/viewBookList", function(req, res){
+        app.post("/student/viewBookList", function(req, res){
             const student_id = req.body.studentID;
             
             var collection = myMongoClient.db("DIU_Library_Service").collection("students");
