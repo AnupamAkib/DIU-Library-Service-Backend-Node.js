@@ -16,7 +16,7 @@ var md5 = require('md5');
 var app = express();
 var multer = multer();
 
-app.use(cors(corsOptions));
+app.use(cors()); //no coresOption is used
 
 app.use(bodyParser.json());
 app.use(multer.array()); //for parsing multiple/form-data
