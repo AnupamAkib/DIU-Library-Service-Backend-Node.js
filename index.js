@@ -47,6 +47,7 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
             res.send({name:"akib", id:"191-35-2640"});
         })
 
+        // for students
         //------------- CRUD on Books --------------
         app.get("/library/allBooks", function(req, res){
             var collection = myMongoClient.db("DIU_Library_Service").collection("books");
@@ -382,6 +383,163 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
             });
         })
 
+
+
+
+
+
+        //for security guard
+        app.post("/guards/individualGuardInfo", function(req, res){
+            const guardEmpID = req.body.guardEmpID;
+            var collection = myMongoClient.db("DIU_Library_Service").collection("guards");
+            collection.find({guardEmpID:guardEmpID}).toArray(function (err, data) {
+                if (err) {
+                    console.log("Error selecting data");
+                    res.send({ status: "failed" });
+                }
+                else {
+                    if(data.length==0){
+                        res.send({status:"not found"});
+                    }
+                    else{
+                        res.send({ status: "done", result: data });
+                    }
+                }
+            })
+        })
+
+        app.post("/guards/allGuardInfo", function(req, res){
+            var collection = myMongoClient.db("DIU_Library_Service").collection("guards");
+            collection.find().toArray(function (err, data) {
+                if (err) {
+                    console.log("Error selecting data");
+                    res.send({ status: "failed" });
+                }
+                else {
+                    if(data.length==0){
+                        res.send({status:"not found"});
+                    }
+                    else{
+                        res.send({ status: "done", result: data });
+                    }
+                }
+            })
+        })
+
+        app.post("/guards/addGuard", function(req, res){
+            const _data = req.body;
+            try {
+                myMongoClient.db("DIU_Library_Service").collection("guards").insertOne(_data);
+                res.send({ status: "done" })
+            }
+            catch (e) {
+                console.log(e)
+                res.send({ status: "failed" })
+            }
+        })
+
+        app.post("/guards/deleteGuard", function(req, res){
+            var collection = myMongoClient.db("DIU_Library_Service").collection("guards");
+            let id = new ObjectId(req.body._id); //make id as object
+            collection.deleteOne(
+                { _id: id }, //targeted data
+                function (err, data) {
+                    if (err) {
+                        res.send({ status: "failed" })
+                    }
+                    else {
+                        res.send({ status: "done" })
+                    }
+                }
+            )
+        })
+
+
+        //Locker Entity CRUD
+        app.post("/guards/giveLockerKey", function(req, res){ //add in locker entity
+            const _data = req.body;
+            try {
+                myMongoClient.db("DIU_Library_Service").collection("locker_entity").insertOne(_data);
+                res.send({ status: "done" })
+            }
+            catch (e) {
+                console.log(e)
+                res.send({ status: "failed" })
+            }
+        })
+
+        app.post("/guards/markLockerKeyReturn", function(req, res){ //add in locker entity
+            const keyNumber = req.body.keyNumber;
+            const returnTime = req.body.returnTime;
+            const RT_milliseconds = req.body.RT_milliseconds;
+
+            var collection = myMongoClient.db("DIU_Library_Service").collection("locker_entity");
+            collection.updateOne(
+                { keyNumber }, //targeted data
+                {
+                    $set: {
+                        returnTime : returnTime,
+                        RT_milliseconds : RT_milliseconds
+                    }
+                },
+                function (err, data) {
+                    if (err) {
+                        res.send({ status: "failed" })
+                    }
+                    else {
+                        res.send({ status: "done" })
+                    }
+                }
+            )
+        })
+
+        app.post("/guards/allLockerEntity", function(req, res){
+            var collection = myMongoClient.db("DIU_Library_Service").collection("locker_entity");
+            collection.find().toArray(function (err, data) {
+                if (err) {
+                    console.log("Error selecting data");
+                    res.send({ status: "failed" });
+                }
+                else {
+                    if(data.length==0){
+                        res.send({status:"not found"});
+                    }
+                    else{
+                        let ret_data = [];
+                        const minute = 1000 * 60;
+                        for(let i=0; i<data.length; i++){
+                            let tmp = {};
+                            if(data[i].RT_milliseconds != "-"){
+                                let taken_time = parseInt(data[i].HT_milliseconds);
+                                let return_time = parseInt(data[i].RT_milliseconds);
+                                let taken_time_min = Math.round(parseInt(taken_time) / minute);
+                                let return_time_min = Math.round(parseInt(return_time) / minute);
+                                let duration = return_time_min - taken_time_min;
+                                tmp = {
+                                    studentID : data[i].studentID,
+                                    keyNumber : data[i].keyNumber,
+                                    handoverTime : data[i].handoverTime,
+                                    returnTime : data[i].returnTime,
+                                    duration : duration.toString()
+                                }
+                            }
+                            else{
+                                tmp = {
+                                    studentID : data[i].studentID,
+                                    keyNumber : data[i].keyNumber,
+                                    handoverTime : data[i].handoverTime,
+                                    returnTime : data[i].returnTime,
+                                    duration : "-"
+                                }
+                            }
+                            ret_data.push(tmp);
+                        }
+                        //console.log(ret_data)
+                        res.send({ status: "done", result: ret_data }); //duration returning in minute only
+                    }
+                }
+            })
+        })
     }
 })
 
