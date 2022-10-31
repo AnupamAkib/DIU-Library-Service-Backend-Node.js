@@ -506,21 +506,35 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
                     }
                     else{
                         let ret_data = [];
-                        const minute = 1000 * 60;
+                        const minute_convert = 1000 * 60;
                         for(let i=0; i<data.length; i++){
                             let tmp = {};
                             if(data[i].RT_milliseconds != "-"){
                                 let taken_time = parseInt(data[i].HT_milliseconds);
                                 let return_time = parseInt(data[i].RT_milliseconds);
-                                let taken_time_min = Math.round(parseInt(taken_time) / minute);
-                                let return_time_min = Math.round(parseInt(return_time) / minute);
+                                let taken_time_min = Math.round(parseInt(taken_time) / minute_convert);
+                                let return_time_min = Math.round(parseInt(return_time) / minute_convert);
                                 let duration = return_time_min - taken_time_min;
+
+                                let hour = Math.floor(duration / 60);
+                                let minute = duration % 60;
+
+                                let duration_string = "";
+                                if(hour){
+                                    duration_string = hour.toString();
+                                    if(hour>1) duration_string += " hours, ";
+                                    else duration_string += " hour, ";
+                                }
+                                duration_string += minute.toString();
+                                if(minute>1) duration_string += " minutes";
+                                else duration_string += " minute";
+
                                 tmp = {
                                     studentID : data[i].studentID,
                                     keyNumber : data[i].keyNumber,
                                     handoverTime : data[i].handoverTime,
                                     returnTime : data[i].returnTime,
-                                    duration : duration.toString()
+                                    duration : duration_string
                                 }
                             }
                             else{
