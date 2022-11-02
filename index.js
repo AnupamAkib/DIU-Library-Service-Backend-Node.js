@@ -475,7 +475,7 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
 
             var collection = myMongoClient.db("DIU_Library_Service").collection("locker_entity");
             collection.updateOne(
-                { keyNumber }, //targeted data
+                { keyNumber:keyNumber, RT_milliseconds:"-"}, //targeted data
                 {
                     $set: {
                         returnTime : returnTime,
