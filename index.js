@@ -556,8 +556,8 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
         })
 
 
-
-        app.post("/admin/readAllAdmin", function(req, res){ //read all admin information
+        //admin management backend
+        app.get("/admin/readAllAdmin", function(req, res){ //read all admin information
             var collection = myMongoClient.db("DIU_Library_Service").collection("admin");
             collection.find().toArray(function (err, data) {
                 if (err) {
