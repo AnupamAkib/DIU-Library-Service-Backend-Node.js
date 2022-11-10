@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(multer.array()); //for parsing multiple/form-data
 
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 2000;
 
 app.listen(PORT, function () {
     console.log("Server Started");
@@ -557,7 +557,7 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
 
 
         //admin management backend
-        app.get("/admin/readAllAdmin", function(req, res){ //read all admin information
+        app.post("/admin/readAllAdmin", function(req, res){ //read all admin information
             var collection = myMongoClient.db("DIU_Library_Service").collection("admin");
             collection.find().toArray(function (err, data) {
                 if (err) {
