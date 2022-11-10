@@ -554,6 +554,75 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
                 }
             })
         })
+
+
+
+        app.post("/admin/readAllAdmin", function(req, res){ //read all admin information
+            var collection = myMongoClient.db("DIU_Library_Service").collection("admin");
+            collection.find().toArray(function (err, data) {
+                if (err) {
+                    console.log("Error selecting data");
+                    res.send({ status: "failed" });
+                }
+                else {
+                    res.send({ status: "done", result: data });
+                }
+            })
+        })
+
+        app.post("/admin/addAdmin", function(req, res){ //add admin
+            const _data = req.body;
+            try {
+                myMongoClient.db("DIU_Library_Service").collection("admin").insertOne(_data);
+                res.send({ status: "done" })
+            }
+            catch (e) {
+                console.log(e)
+                res.send({ status: "failed" })
+            }
+        })
+
+        app.post("/admin/editAdmin", function(req, res){ //edit admin
+            var collection = myMongoClient.db("DIU_Library_Service").collection("admin");
+            let id = new ObjectId(req.body._id); //make id as object
+            let _name = req.body.name;
+            let _password = req.body.password;
+            let _access = req.body.access;
+            collection.updateOne(
+                { _id: id }, //targeted data
+                {
+                    $set: {
+                        name: _name,
+                        password: _password,
+                        access: _access
+                    }
+                },
+                function (err, data) {
+                    if (err) {
+                        res.send({ status: "failed" })
+                    }
+                    else {
+                        res.send({ status: "done" })
+                    }
+                }
+            )
+        })
+
+        app.post("/admin/deleteAdmin", function(req, res){ //delete admin
+            var collection = myMongoClient.db("DIU_Library_Service").collection("admin");
+            let id = new ObjectId(req.body._id); //make id as object
+            collection.deleteOne(
+                { _id: id }, //targeted data
+                function (err, data) {
+                    if (err) {
+                        res.send({ status: "failed" })
+                    }
+                    else {
+                        res.send({ status: "done" })
+                    }
+                }
+            )
+        })
     }
 })
 
