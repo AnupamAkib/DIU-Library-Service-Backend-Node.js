@@ -623,6 +623,49 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
                 }
             )
         })
+
+
+        //record activity logs
+        app.post("/activity_log/add", function(req, res){ //add admin
+            const _data = req.body;
+            try {
+                myMongoClient.db("DIU_Library_Service").collection("activity").insertOne(_data);
+                res.send({ status: "done" })
+            }
+            catch (e) {
+                console.log(e)
+                res.send({ status: "failed" })
+            }
+        })
+
+        app.post("/activity_log/read", function(req, res){ //read all admin information
+            var collection = myMongoClient.db("DIU_Library_Service").collection("activity");
+            collection.find().toArray(function (err, data) {
+                if (err) {
+                    console.log("Error selecting data");
+                    res.send({ status: "failed" });
+                }
+                else {
+                    res.send({ status: "done", result: data });
+                }
+            })
+        })
+
+        app.post("/activity_log/delete", function(req, res){ //delete admin
+            var collection = myMongoClient.db("DIU_Library_Service").collection("activity");
+            let id = new ObjectId(req.body._id); //make id as object
+            collection.deleteMany(
+                {}, //targeted data
+                function (err, data) {
+                    if (err) {
+                        res.send({ status: "failed" })
+                    }
+                    else {
+                        res.send({ status: "done" })
+                    }
+                }
+            )
+        })
     }
 })
 
