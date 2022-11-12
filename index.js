@@ -329,6 +329,35 @@ MongoClient.connect(URL, config, function (err, myMongoClient) {
             })
         })
 
+        app.post("/student/allStudentInfo", function(req, res){
+            var collection = myMongoClient.db("DIU_Library_Service").collection("students");
+            collection.find().toArray(function (err, data) {
+                if (err) {
+                    console.log("Error selecting data");
+                    res.send({ status: "failed" });
+                }
+                else {
+                    res.send({ status: "done", result: data });
+                }
+            })
+        })
+
+        app.post("/student/deleteStudent", function(req, res){
+            var collection = myMongoClient.db("DIU_Library_Service").collection("students");
+            let id = new ObjectId(req.body._id); //make id as object
+            collection.deleteOne(
+                { _id: id }, //targeted data
+                function (err, data) {
+                    if (err) {
+                        res.send({ status: "failed" })
+                    }
+                    else {
+                        res.send({ status: "done" })
+                    }
+                }
+            )
+        })
+
         app.post("/student/changePassword", function(req, res){
             const studentID = req.body.studentID;
             const newPassword = req.body.newPassword;
